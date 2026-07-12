@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>SPARE — Kho tra cứu riêng của BaoMinh</title>
+<style>
+  :root{
+    --bg:#0d0b14; --bg2:#161226; --card:#1c1730; --card2:#241d3d;
+    --ink:#e8e2f4; --ink-dim:#a89fc4; --ink-faint:#6f668f;
+    --gold:#d4a94e; --gold-soft:#b8933f;
+    --violet:#8b6fd0; --line:#332a52;
+    --ok:#5fbf8a; --mid:#d4a94e; --warn:#e0785a;
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:Georgia,'Times New Roman',serif;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #241d3d55, transparent),
+      radial-gradient(900px 500px at -10% 30%, #1c173055, transparent),
+      var(--bg);
+    color:var(--ink); line-height:1.65; min-height:100vh;
+    padding-bottom:70px;
+  }
+  .wrap{max-width:860px;margin:0 auto;padding:0 16px}
+
+  /* ---------- header ---------- */
+  header{padding:34px 0 10px;text-align:center;position:relative}
+  .sigil{width:74px;height:74px;margin:0 auto 12px;display:block;opacity:.92}
+  h1{font-size:1.55rem;letter-spacing:.14em;color:var(--gold);font-weight:normal;text-transform:uppercase}
+  .sub{color:var(--ink-dim);font-size:.95rem;margin-top:6px;font-style:italic}
+  .dates{color:var(--ink-faint);font-size:.85rem;letter-spacing:.3em;margin-top:6px}
+  .private{display:inline-block;margin-top:12px;font-size:.72rem;color:var(--ink-faint);
+    border:1px solid var(--line);border-radius:20px;padding:3px 12px;letter-spacing:.08em}
+
+  /* ---------- search ---------- */
+  .searchbox{margin:20px 0 6px;position:relative}
+  .searchbox input{
+    width:100%;padding:13px 44px 13px 16px;border-radius:12px;
+    border:1px solid var(--line);background:var(--bg2);color:var(--ink);
+    font-size:1rem;font-family:inherit;outline:none;
+  }
+  .searchbox input:focus{border-color:var(--violet)}
+  .searchbox .icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--ink-faint);font-size:1.05rem;pointer-events:none}
+  #searchInfo{font-size:.82rem;color:var(--ink-dim);min-height:1.4em;padding:4px 2px}
+  mark{background:#d4a94e55;color:#ffe9b8;border-radius:3px;padding:0 2px}
+
+  /* ---------- tabs ---------- */
+  nav{
+    position:sticky;top:0;z-index:50;background:#0d0b14ee;backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);margin-top:14px;
+  }
+  .tabs{display:flex;gap:2px;overflow-x:auto;padding:8px 12px;max-width:860px;margin:0 auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    flex:0 0 auto;padding:8px 14px;border-radius:10px;border:1px solid transparent;
+    color:var(--ink-dim);font-size:.88rem;cursor:pointer;background:none;font-family:inherit;
+    white-space:nowrap;transition:all .15s;
+  }
+  .tab.active{color:var(--gold);border-color:var(--line);background:var(--card)}
+
+  /* ---------- sections & cards ---------- */
+  section{display:none;padding:22px 0 10px;animation:fade .25s ease}
+  section.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  h2{color:var(--gold);font-size:1.18rem;font-weight:normal;letter-spacing:.06em;margin:26px 0 12px;text-transform:uppercase}
+  h2:first-child{margin-top:0}
+  h3{color:var(--violet);font-size:1.02rem;margin:18px 0 8px;font-weight:normal}
+  p{margin:0 0 12px;color:var(--ink)}
+  .dim{color:var(--ink-dim)}
+  .card{
+    background:linear-gradient(160deg,var(--card),var(--card2));
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 18px 14px;margin-bottom:14px;
+  }
+  .quote{
+    border-left:3px solid var(--gold-soft);padding:10px 14px;margin:12px 0;
+    background:#d4a94e0d;border-radius:0 10px 10px 0;font-style:italic;color:#e5d9bd;font-size:.95rem;
+  }
+  .quote .who{display:block;margin-top:6px;font-size:.8rem;color:var(--ink-faint);font-style:normal}
+
+  /* ---------- badges ---------- */
+  .badge{display:inline-block;font-size:.68rem;letter-spacing:.06em;border-radius:6px;padding:2px 8px;vertical-align:2px;margin-left:6px;font-family:system-ui,sans-serif}
+  .b-ok{background:#5fbf8a22;color:var(--ok);border:1px solid #5fbf8a55}
+  .b-mid{background:#d4a94e22;color:var(--mid);border:1px solid #d4a94e55}
+  .b-warn{background:#e0785a22;color:var(--warn);border:1px solid #e0785a55}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 18px}
+  .legend .badge{margin-left:0;font-size:.72rem;padding:4px 10px}
+
+  /* ---------- timeline ---------- */
+  .tl{position:relative;margin:14px 0 8px;padding-left:26px}
+  .tl::before{content:"";position:absolute;left:8px;top:4px;bottom:4px;width:1px;background:linear-gradient(var(--violet),var(--gold-soft),var(--violet))}
+  .ev{position:relative;margin-bottom:20px}
+  .ev::before{content:"";position:absolute;left:-23px;top:8px;width:9px;height:9px;border-radius:50%;background:var(--bg);border:2px solid var(--gold)}
+  .ev .yr{color:var(--gold);font-size:1rem;letter-spacing:.08em}
+  .ev .tx{color:var(--ink);font-size:.96rem;margin-top:2px}
+  .ev .tx .en{color:var(--ink-dim);font-style:italic}
+
+  /* ---------- myth cards ---------- */
+  .verdict{font-family:system-ui,sans-serif;font-size:.75rem;letter-spacing:.1em;padding:3px 10px;border-radius:6px;display:inline-block;margin-bottom:8px}
+  .v-false{background:#e0785a22;color:var(--warn);border:1px solid #e0785a66}
+  .v-true{background:#5fbf8a22;color:var(--ok);border:1px solid #5fbf8a66}
+  .v-partial{background:#d4a94e22;color:var(--mid);border:1px solid #d4a94e66}
+  .myth-claim{font-style:italic;color:#efe7ff;font-size:1.02rem;margin-bottom:6px}
+  .myth-why{font-size:.92rem;color:var(--ink-dim)}
+
+  /* ---------- steps ---------- */
+  .step{display:flex;gap:14px;margin-bottom:14px}
+  .step .n{
+    flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--gold-soft);
+    color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:1rem;
+  }
+  .step .t{flex:1}
+
+  /* ---------- sources ---------- */
+  .src{padding:12px 14px;border:1px solid var(--line);border-radius:10px;margin-bottom:10px;background:var(--bg2)}
+  .src a{color:#b9a6ea;text-decoration:none;word-break:break-all}
+  .src a:hover{text-decoration:underline}
+  .src .note{font-size:.85rem;color:var(--ink-dim);margin-top:3px}
+  .tier{color:var(--gold);letter-spacing:.12em;font-size:.8rem;text-transform:uppercase;margin:20px 0 10px;font-family:system-ui,sans-serif}
+
+  table{width:100%;border-collapse:collapse;font-size:.92rem;margin:10px 0}
+  td,th{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{color:var(--gold);font-weight:normal;letter-spacing:.05em}
+
+  footer{margin-top:34px;padding:20px 16px 8px;border-top:1px solid var(--line);text-align:center;color:var(--ink-faint);font-size:.8rem}
+  .hidden-by-search{display:none !important}
+  @media (max-width:520px){
+    h1{font-size:1.25rem}
+    .card{padding:15px 14px 11px}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <!-- Sigil trang trí — glyph trừu tượng tự thiết kế theo tinh thần "hợp nhất chữ cái", không sao chép tác phẩm gốc -->
+  <svg class="sigil" viewBox="0 0 100 100" fill="none" stroke="#d4a94e" stroke-width="2.2" stroke-linecap="round">
+    <circle cx="50" cy="50" r="44" opacity=".35"/>
+    <path d="M50 10 L50 90"/>
+    <path d="M28 30 Q50 8 72 30"/>
+    <path d="M30 72 L50 46 L70 72"/>
+    <circle cx="50" cy="46" r="5"/>
+    <path d="M22 52 H40 M60 52 H78"/>
+    <path d="M50 90 Q38 80 44 70 M50 90 Q62 80 56 70" opacity=".7"/>
+  </svg>
+  <h1>Austin Osman Spare</h1>
+  <div class="sub">"Pháp sư vĩ đại nhất nước Anh thế kỷ 20" — họa sĩ thần đồng, cha đẻ sigil magic,<br>người cuối đời sống giữa đàn mèo hoang Nam London</div>
+  <div class="dates">1886 — 1956</div>
+  <div class="private">🔒 Hồ sơ riêng của BaoMinh — không phát hành công khai</div>
+
+  <div class="searchbox">
+    <input id="q" type="search" placeholder="Tìm trong toàn bộ hồ sơ… (vd: sigil, mèo, Hitler, tarot, Crowley)" autocomplete="off">
+    <span class="icon">☾</span>
+  </div>
+  <div id="searchInfo"></div>
+</header>
+</div>
+
+<nav><div class="tabs" id="tabs">
+  <button class="tab active" data-t="tongquan">Tổng quan</button>
+  <button class="tab" data-t="cuocdoi">Cuộc đời</button>
+  <button class="tab" data-t="phapthuat">Pháp thuật</button>
+  <button class="tab" data-t="myth">Thật ↔ Huyền thoại</button>
+  <button class="tab" data-t="tarot">Tarot &amp; Bói bài</button>
+  <button class="tab" data-t="disan">Di sản</button>
+  <button class="tab" data-t="nguon">Nguồn</button>
+  <button class="tab" data-t="docsau">Đọc sâu ②</button>
+</div></nav>
+
+<div class="wrap">
+
+<!-- ============ TỔNG QUAN ============ -->
+<section id="tongquan" class="active">
+  <div class="legend">
+    <span class="badge b-ok">✓ XÁC NHẬN — ≥2 nguồn độc lập khớp nhau</span>
+    <span class="badge b-mid">◐ 1 NGUỒN — chưa đối chiếu được</span>
+    <span class="badge b-warn">⚠ GIAI THOẠI — gốc từ một kênh không kiểm chứng</span>
+  </div>
+
+  <div class="card">
+    <h2>Ông là ai?</h2>
+    <p><strong>Austin Osman Spare</strong> (30/12/1886 – 15/5/1956) là họa sĩ và pháp sư người Anh, sinh tại Snow Hill, London, con trai một cảnh sát City of London. <span class="badge b-ok">✓</span></p>
+    <p>Ở tuổi 17 ông là hiện tượng của làng mỹ thuật Edwardian — báo chí gọi là "thiên tài", "Aubrey Beardsley mới". Rồi ông quay lưng với hào quang West End, về sống nghèo và ẩn dật ở Nam London, dồn cả đời cho một hệ thống pháp thuật–nghệ thuật của riêng mình. Sau khi mất, ông trở thành nhân vật giáo phụ của <em>chaos magick</em> và là cái tên được văn hóa manifestation hiện đại nhắc đến nhiều nhất mà… hiểu sai nhiều nhất. <span class="badge b-ok">✓</span></p>
+  </div>
+
+  <div class="card">
+    <h2>Vì sao gọi là "người thu hút mọi điều mình muốn"?</h2>
+    <p>Vì phát minh nổi tiếng nhất của ông: <strong>SIGIL</strong> — kỹ thuật nén một ước muốn thành ký tự đồ hình rồi cấy vào tiềm thức. Chính Spare viết trong <em>The Book of Pleasure</em> (1913):</p>
+    <div class="quote">"Sigils are the art of believing; my invention for making belief organic."
+      <span class="who">— Sigil là nghệ thuật của niềm tin; phát minh của tôi để biến niềm tin thành hữu cơ. (văn bản gốc, 1913)</span></div>
+    <p>Những câu chuyện "ước gì được nấy" (vẽ sigil gọi mưa trong 10 phút, hiện hình đồ vật…) đến từ hồi ức của <strong>Kenneth Grant</strong> — người bạn cuối đời và cũng là người "dựng huyền thoại" cho Spare. Không có nguồn độc lập nào xác nhận các phép màu đó. <span class="badge b-warn">⚠</span></p>
+    <p><strong>Điểm quan trọng nhất cho người làm huyền học:</strong> cơ chế của Spare NGƯỢC với "luật hấp dẫn" đại chúng — không nuôi hình dung liên tục, mà <em>cố tình quên</em> ước muốn đi để tiềm thức tự làm việc. Xem tab <em>Pháp thuật</em>. <span class="badge b-ok">✓</span></p>
+  </div>
+
+  <div class="card">
+    <h2>Còn những con mèo?</h2>
+    <p>Có thật. Những năm cuối đời, sống thanh bần trong căn hộ/tầng hầm khu Borough–Brixton, Spare <strong>cưu mang cả đàn mèo hoang</strong> — "mothered a brood of stray cats" — và sống một phần nhờ thức ăn người quen quyên tặng. Tiểu sử chuẩn của Phil Baker mô tả ông "surrounding himself with cats and familiar spirits" (vây quanh mình bằng mèo và các linh thể thân thuộc). Nhiều ảnh tư liệu chụp ông giữa đàn mèo còn lưu. <span class="badge b-ok">✓</span></p>
+    <p class="dim">Ông là người yêu động vật cả đời, thành viên hội bảo vệ động vật RSPCA, chăm cả những con vật hoang khác quanh nhà — nhưng mèo là hình ảnh gắn chặt nhất với giai đoạn cuối.</p>
+  </div>
+
+  <div class="card">
+    <h2>5 dữ kiện nhanh</h2>
+    <p>① Bức vẽ đưa ông vào Royal Academy 1904 được thực hiện khi ông mới <strong>14 tuổi</strong> — và do cha ông lén gửi. <span class="badge b-ok">✓</span></p>
+    <p>② Ông từng ở trong hội kín A∴A∴ của <strong>Aleister Crowley</strong> nhưng bỏ đi vì ghét tôn ti, sau còn mắng giới pháp sư nghi lễ là "đám công tử vô công rồi nghề của chốn lầu xanh". <span class="badge b-ok">✓</span></p>
+    <p>③ Bom Đức phá hủy studio + phần lớn tranh của ông ngày 10/5/1941; ông bị liệt tay tạm thời, phải sống trong tầng hầm. <span class="badge b-ok">✓</span></p>
+    <p>④ Ông tự làm một bộ <strong>tarot 79 lá</strong> (~1905–06), thất lạc trong bảo tàng ảo thuật London gần 70 năm trước khi được tìm lại (2013) và xuất bản thành sách <em>Lost Envoy</em>. <span class="badge b-ok">✓</span></p>
+    <p>⑤ Ông treo tranh bán rẻ trong các quán pub Nam London vì tin rằng nghệ thuật phải đến được túi tiền người lao động. <span class="badge b-ok">✓</span></p>
+  </div>
+</section>
+
+<!-- ============ CUỘC ĐỜI ============ -->
+<section id="cuocdoi">
+  <div class="card">
+    <h2>Dòng thời gian</h2>
+    <div class="tl">
+      <div class="ev"><div class="yr">1886</div><div class="tx">Sinh 30/12 tại Snow Hill, London; cha là cảnh sát City of London. Năm 1894 cả nhà chuyển về Kennington, Nam London — vùng đất gắn với ông trọn đời. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">~1900</div><div class="tx">Thần đồng hội họa; ban ngày làm việc, tối học Lambeth School of Art. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">1904</div><div class="tx">17 tuổi: một bức vẽ (làm lúc 14 tuổi, cha lén gửi) được nhận vào <strong>Royal Academy Summer Exhibition</strong> — trẻ nhất kỳ triển lãm năm đó. Báo chí thổi thành "trẻ nhất mọi thời đại" (sai — Baker 2011, tr.23). Cùng năm thắng học bổng Royal College of Art. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">1905–07</div><div class="tx">Tự xuất bản <em>Earth Inferno</em> (1905) và <em>A Book of Satyrs</em> (1907). <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">1907</div><div class="tx">Gia nhập hội A∴A∴ của Aleister Crowley — thành viên thứ 7, pháp danh <em>Yihovaeum</em> (một số nguồn ghi 1909). Ở lại đến 1912 nhưng không bao giờ thành hội viên đầy đủ: ghét tôn ti, dị ứng nghi lễ rườm rà. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">1909–13</div><div class="tx">Viết và tự in <strong><em>The Book of Pleasure (Self-Love): The Psychology of Ecstasy</em></strong> — 68 trang, kinh điển của sigil magic. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">1911</div><div class="tx">Cưới diễn viên Eily Gertrude Shaw; hôn nhân về sau rạn nứt. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">1917</div><div class="tx">Thế chiến I: bị trưng binh vào Royal Army Medical Corps, hàm quyền Trung sĩ tham mưu, làm công việc vẽ/ghi hình phục vụ chiến tranh — đời sau hay gọi gọn là "Official War Artist" (có phần phóng đại). Nhiều chân dung thời chiến của ông nay thuộc Imperial War Museum. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">1921–27</div><div class="tx"><em>The Focus of Life</em> (1921), <em>The Anathema of Zos</em> (1927) — nơi có câu mắng giới pháp sư nghi lễ: <span class="en">"the unemployed dandies of the Brothels"</span>. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">Cuối 1920s</div><div class="tx">Rời hẳn hệ thống gallery West End; về "phía nam sông" — Borough, Walworth, Brixton — sống nghèo, vẽ không ngừng, đắm trong pháp thuật. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">1936</div><div class="tx">Chuyện kể: nhận đề nghị vẽ chân dung <strong>Hitler</strong> và từ chối bằng câu trả lời nay đã thành huyền thoại (xem tab Thật ↔ Huyền thoại). Bức "Self as Hitler" của ông là tranh có thật. <span class="badge b-mid">◐</span> Cùng khoảng năm: phát hành bộ bài bói <em>Surrealist Racing Forecast Cards</em>. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">1939</div><div class="tx">53 tuổi, xin nhập ngũ đánh phát xít — bị từ chối vì quá tuổi. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">1941</div><div class="tx">Đêm 10/5, bom Luftwaffe đánh trúng studio 56a Walworth Road: khoảng 200–300 bức tranh bị hủy, mất trí nhớ tạm thời, tay liệt tạm thời, vô gia cư. Ông gọi đó là "Hitler's revenge" — đòn trả thù của Hitler <span class="badge b-mid">◐</span>. Sau đó sống trong tầng hầm chật hẹp ở Brixton. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">1947</div><div class="tx">Triển lãm phục sinh tại Archer Gallery (bạn ông — nhà báo Dennis Bardens — dàn xếp): hơn 200 tác phẩm, gần như bán sạch. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">1949–53</div><div class="tx">Treo tranh trong pub Temple Bar (Walworth Road), chuẩn bị show ở White Bear (Kennington) — "nghệ thuật phải rẻ cho người thường". Kết bạn với Kenneth &amp; Steffi Grant; thư từ giai đoạn này sau in thành <em>Zos Speaks!</em>. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">Năm cuối</div><div class="tx">Căn phòng nghèo ngập tranh và <strong>đàn mèo hoang được ông cưu mang</strong>; sống một phần nhờ đồ ăn quyên tặng. <span class="badge b-ok">✓</span></div></div>
+      <div class="ev"><div class="yr">1956</div><div class="tx">Mất ngày 15/5, tuổi 69 — viêm phúc mạc do vỡ ruột thừa cùng bệnh tật tích tụ, tại South Western Hospital, Stockwell. <span class="badge b-ok">✓</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Con người</h2>
+    <p>Các mô tả đương thời và tiểu sử sau này vẽ nên một người: tài năng phi thường, bướng bỉnh, hào phóng với người nghèo, dị ứng quyền uy, yêu động vật cả đời (hội viên RSPCA), thà bán tranh giá vài shilling trong pub còn hơn quay lại thế giới gallery. Nhà phê bình của Literary Review gọi chân dung trong tiểu sử Baker là "một quái kiệt Anh tuyệt vời: tài hoa, kiên cường, đa tình, gàn dở, dịu dàng". <span class="badge b-ok">✓</span></p>
+  </div>
+</section>
+
+<!-- ============ PHÁP THUẬT ============ -->
+<section id="phapthuat">
+  <div class="card">
+    <h2>Bản đồ hệ thống Zos–Kia</h2>
+    <p><strong>KIA</strong> — "tự do tuyệt đối", thực tại tối hậu không thể gọi tên. Định nghĩa của chính Spare: đạt tới nó <em>"bằng cách không tin"</em> (by not believing). Câu "Kia nói ra được thì không còn là Kia vĩnh cửu" vọng lại mở đầu Đạo Đức Kinh. <span class="badge b-ok">✓ văn bản gốc</span></p>
+    <p><strong>ZOS</strong> — tổng thể thân–tâm con người, "bàn tay và con mắt" thực thi ý chí.</p>
+    <p><strong>Neither-Neither</strong> (Chẳng-Cũng-Chẳng) — phép phủ định kép mọi cặp nhị nguyên cho đến khi ý niệm cạn kiệt, mở ra khoảng trống.</p>
+    <p><strong>Death Posture</strong> (Tư thế Chết) — kỹ thuật thân thể tạo trạng thái "trống rỗng" (vacuity): triệt tiêu dòng suy nghĩ nhị nguyên, chính là khoảnh khắc để nạp sigil. <span class="badge b-ok">✓ văn bản gốc</span></p>
+    <p><strong>Atavistic resurgence</strong> (tái trỗi dậy nguyên thủy) và <strong>automatic drawing</strong> (vẽ tự động) — cầu nối nghệ thuật–pháp thuật đặc trưng của ông, được giới học thuật đặt trong bối cảnh thẩm mỹ cuối thế kỷ 19. <span class="badge b-ok">✓</span></p>
+  </div>
+
+  <div class="card">
+    <h2>Sigil — quy trình gốc 1913</h2>
+    <div class="step"><div class="n">1</div><div class="t">Viết ước muốn thành một câu, IN HOA. Ví dụ của chính Spare: <span class="dim">"THIS MY WISH TO OBTAIN THE STRENGTH OF A TIGER"</span> (Ước nguyện này của tôi: có được sức mạnh của hổ).</div></div>
+    <div class="step"><div class="n">2</div><div class="t">Xóa các chữ cái lặp lại, chỉ giữ mỗi chữ một lần; <strong>hợp nhất và cách điệu</strong> các chữ còn lại thành MỘT glyph trừu tượng — ước muốn giờ không còn đọc ra được nữa.</div></div>
+    <div class="step"><div class="n">3</div><div class="t">Nạp glyph vào tâm trí tại thời khắc <strong>kiệt sức – trống rỗng – xuất thần</strong> (exhaustion / vacuity / ecstasy — qua Death Posture hoặc trạng thái tương đương).</div></div>
+    <div class="step"><div class="n">4</div><div class="t"><strong>Quên nó đi — một cách chủ động.</strong> Nguyên văn Spare: <span class="dim">"eventually it becomes vague, then vanishes and success is assured"</span> — nó mờ dần, biến mất, và thành công được bảo đảm.</div></div>
+    <div class="quote">"When conscious of the Sigil form… it should be repressed, a deliberate striving to forget it; by this it is active and dominates at the unconscious period… becomes attached to the sub-consciousness and become organic."
+      <span class="who">— Spare, Ethos (tuyển tập, I-H-O Books 2001, tr.177): khi ý thức về sigil, phải đè nén và cố tình quên — nhờ vậy nó hoạt động ở tầng vô thức và "trở thành hữu cơ".</span></div>
+    <p class="dim">Kenneth Grant tóm tắt cơ chế này bằng cụm từ đẹp: <em>"union through absent-mindedness"</em> — hợp nhất nhờ lơ đãng. <span class="badge b-ok">✓ nhiều nguồn khớp</span></p>
+  </div>
+
+  <div class="card">
+    <h2>⚡ Spare ≠ Luật hấp dẫn — bảng đối chiếu</h2>
+    <table>
+      <tr><th></th><th>Luật hấp dẫn đại chúng<br>(The Secret, TikTok…)</th><th>Sigil magic của Spare<br>(1913)</th></tr>
+      <tr><td>Thao tác chính</td><td>Duy trì hình dung + khẳng định <strong>liên tục, có ý thức</strong></td><td>Nén ước muốn thành glyph rồi <strong>cố tình quên</strong></td></tr>
+      <tr><td>Vai trò ý thức</td><td>Động cơ chính — nghĩ về nó càng nhiều càng tốt</td><td>Chướng ngại — <span class="dim">"Consciousness of the desire vitiates the entire process"</span> (ý thức về ước muốn làm hỏng toàn bộ tiến trình)</td></tr>
+      <tr><td>Khung lý thuyết</td><td>"Rung động", "vũ trụ đáp lời"</td><td>Tâm lý học tiềm thức (đậm dấu Freud) + mỹ học</td></tr>
+      <tr><td>Trạng thái then chốt</td><td>Cảm xúc tích cực kéo dài</td><td>Khoảnh khắc trống rỗng/kiệt sức/xuất thần duy nhất</td></tr>
+    </table>
+    <p>Kết luận kiểm chứng: gọi Spare là "ông tổ luật hấp dẫn" là <strong>sai</strong> — chính xác phải là <strong>ông tổ của sigil magic / nghệ thuật thao tác tiềm thức</strong>, thứ mà văn hóa manifestation hiện đại vay mượn rồi diễn giải ngược cơ chế. <span class="badge b-ok">✓</span></p>
+    <p class="dim">Ghi chú phản biện: một số thực hành gia đương đại (Barford &amp; Chapman) kể rằng phá quy trình "phải quên" mà "vẫn có kết quả" — tức ngay trong giới, cơ chế này vẫn đang được tranh luận. <span class="badge b-mid">◐</span></p>
+  </div>
+
+  <div class="card">
+    <h2>Alphabet of Desire — bảng chữ cái của ham muốn</h2>
+    <p>Hệ 22 glyph mà Spare nói là biểu đạt "các phương diện của tính dục/ham muốn". Tình trạng tư liệu: cực mỏng — bản online <em>The Book of Pleasure</em> lược bỏ đúng các chương Sacred Letters; nguồn chi tiết gần như duy nhất là Kenneth Grant (<em>Images and Oracles of Austin Osman Spare</em>), người mà chính giới nghiên cứu sigil (Frater U∴D∴) nhận xét "che giấu nhiều hơn tiết lộ". Muốn nghiên cứu nghiêm túc phải dùng bản in đầy đủ. <span class="badge b-ok">✓ về tình trạng tư liệu</span></p>
+  </div>
+</section>
+
+<!-- ============ THẬT vs HUYỀN THOẠI ============ -->
+<section id="myth">
+  <p class="dim" style="margin-bottom:14px">Phần "đắt" nhất của hồ sơ: từng tuyên bố lan truyền trên mạng được đem đối chất với nguồn. Đây cũng chính là lý do bạn nhớ đến ông như "người đàn ông thu hút mọi điều mình muốn, cuối đời sống với mèo".</p>
+
+  <div class="card">
+    <span class="verdict v-true">THẬT (về đại thể)</span>
+    <div class="myth-claim">"Cuối đời ông chỉ sống với những con mèo"</div>
+    <div class="myth-why">Tiểu sử chuẩn (Phil Baker): sống nghèo và vô danh "phía nam sông", "surrounding himself with cats and familiar spirits". Flashbak: "mothered a brood of stray cats" — cưu mang cả đàn mèo hoang, sống một phần nhờ đồ ăn quyên tặng. Có ảnh tư liệu ông giữa đàn mèo (austinspare.co.uk). Lưu ý quan trọng (cập nhật vòng đọc sâu ②): ông không hoàn toàn cô độc — có người bạn đời cũ Ada Millicent Pain ở cạnh từ sau trận bom 1941, Frank Letchford trợ giúp, vợ chồng Grant lui tới. "Chỉ sống với mèo" là cách kể đã được lãng mạn hóa.</div>
+  </div>
+
+  <div class="card">
+    <span class="verdict v-false">GIAI THOẠI — KHÔNG KIỂM CHỨNG ĐƯỢC</span>
+    <div class="myth-claim">"Ông có thể thu hút/hiện thực hóa mọi điều mình muốn" (gọi mưa bằng sigil trong 10 phút; hiện hình đôi dép trước nhà nghiên cứu)</div>
+    <div class="myth-why">Cả hai "phép màu" trứ danh này chỉ có MỘT nguồn in: hồi ức của Kenneth Grant (The Magical Revival) — người quen Spare 7 năm cuối đời và là kiến trúc sư chính của huyền thoại Spare. Không tồn tại nguồn độc lập nào. Chính Grant còn ghi sai năm sinh của Spare (1888/89 thay vì 1886) — thước đo độ tin của kênh này. Spare có "được mọi thứ ông muốn" không? Nhìn đời thật: mất studio vì bom, nghèo, bệnh — điều ông "thu hút" được có lẽ là tự do tuyệt đối theo nghĩa của riêng ông.</div>
+  </div>
+
+  <div class="card">
+    <span class="verdict v-partial">CÓ CƠ SỞ MỘT PHẦN</span>
+    <div class="myth-claim">"Từ chối vẽ chân dung Hitler năm 1936"</div>
+    <div class="myth-why">Câu trả lời nổi tiếng — <em>"Only from negations can I wholesomely conceive you… If you are superman, let me be for ever animal"</em> (Chỉ từ những phủ định tôi mới hình dung nổi ông… Nếu ông là siêu nhân, hãy để tôi mãi mãi là thú vật) — được truyền qua nhà báo Hannen Swaffer, không có văn bản gốc. Cập nhật vòng đọc sâu ②: theo review tiểu sử Baker, bên đưa đề nghị là Đại sứ quán Đức; phán quyết của chính Baker rất chừng mực — "có thể quả thật có gì đó trong câu chuyện, dù không hoàn toàn rõ là gì" — và Spare về sau tự thổi phồng nó. Bức "Self as Hitler" (tự họa thành Hitler) là tranh CÓ THẬT từng lên sàn Bonhams; ông đích thực chống phát xít (xin nhập ngũ 1939 ở tuổi 53). Wikipedia hiện chọn KHÔNG đưa chuyện này — dấu hiệu giới biên tập coi nó chưa đủ chứng cứ.</div>
+  </div>
+
+  <div class="card">
+    <span class="verdict v-false">GIAI THOẠI — KHÔNG TƯ LIỆU</span>
+    <div class="myth-claim">"Thuở nhỏ được bà phù thủy Mrs Paterson, hậu duệ phù thủy Salem, truyền pháp"</div>
+    <div class="myth-why">Nguồn in duy nhất: Kenneth Grant ("bà mẹ thứ hai", "dòng dõi phù thủy Salem mà Cotton Mather không diệt hết"). Phil Baker rà soát hồ sơ, không tìm thấy bằng chứng nào về nhân vật này; giới nghiên cứu nghi ngờ cả cái tên cũng là sáng chế thời Grant. Câu chuyện quá đẹp để kiểm chứng.</div>
+  </div>
+
+  <div class="card">
+    <span class="verdict v-false">SAI</span>
+    <div class="myth-claim">"Người trẻ nhất MỌI THỜI ĐẠI triển lãm tại Royal Academy"</div>
+    <div class="myth-why">Ông là người trẻ nhất của kỳ triển lãm NĂM 1904 (17 tuổi, tranh vẽ lúc 14). Báo chí đương thời thổi thành "trẻ nhất từng có" — Baker (2011, tr.23) xác nhận đây là nhầm lẫn.</div>
+  </div>
+
+  <div class="card">
+    <span class="verdict v-partial">PHÓNG ĐẠI</span>
+    <div class="myth-claim">"Chết không xu dính túi, hoàn toàn bị quên lãng"</div>
+    <div class="myth-why">Nghèo — thật. Nhưng triển lãm Archer Gallery 1947 (200+ tác phẩm) gần như BÁN SẠCH; các show pub 1949–53 có báo chí đưa tin; nhóm Grant ngưỡng mộ vây quanh. "Quên lãng" chỉ đúng theo nghĩa: giới mỹ thuật chính thống đã gạch tên ông.</div>
+  </div>
+
+  <div class="card">
+    <span class="verdict v-partial">ĐÚNG VỚI ĐIỀU KIỆN</span>
+    <div class="myth-claim">"Cha đẻ của chaos magick"</div>
+    <div class="myth-why">Peter J. Carroll hệ thống hóa sigil của Spare trong Liber Null &amp; Psychonaut (kênh truyền: Kenneth Grant) — điều này có tư liệu. Nhưng chính Frater U∴D∴, người gọi Spare là "cha đẻ thực sự của pháp thuật thực dụng hiện đại", cũng chú thích: nói Spare ảnh hưởng TRỰC TIẾP là phóng đại — đúng hơn, thế hệ sau "nhận ra ông là người cùng chí hướng".</div>
+  </div>
+
+  <div class="card">
+    <span class="verdict v-false">CHƯA CÓ VĂN BẢN GỐC</span>
+    <div class="myth-claim">George Bernard Shaw: "Thuốc của Spare quá mạnh cho người thường"</div>
+    <div class="myth-why">Câu quote xuất hiện khắp nơi, nhưng ngay nhà xuất bản tiểu sử chuẩn cũng chỉ dám viết "reportedly" (tương truyền). Chưa ai trưng ra được nguồn gốc.</div>
+  </div>
+</section>
+
+<!-- ============ TAROT ============ -->
+<section id="tarot">
+  <div class="card">
+    <h2>Bộ tarot thất lạc 70 năm</h2>
+    <p>Khoảng <strong>1905–06</strong>, chàng trai Spare tự tay vẽ một bộ bài bói <strong>79 lá</strong> — thiết kế lai độc nhất: 22 lá Major Arcana của tarot ghép với Minor Arcana theo kiểu bộ bài Tây thông thường. <span class="badge b-ok">✓ Burlington Contemporary (tạp chí học thuật mỹ thuật)</span></p>
+    <p>Bộ bài vào bộ sưu tập <strong>The Magic Circle Museum</strong> (bảo tàng của hội ảo thuật gia London) năm <strong>1944</strong>, rồi… nằm quên trong kho. Mãi ~2013, giám tuyển <strong>Jonathan Allen</strong> lần ra một dòng ghi chú trong sổ lưu trữ và tìm lại được nó.</p>
+    <p>2016: xuất bản thành <strong><em>Lost Envoy: The Tarot Deck of Austin Osman Spare</em></strong> (Strange Attractor Press; tuyển luận có Phil Baker, Gavin Semple…) — <strong>hết hàng trong 18 tháng</strong>. Bản tái 2023 kèm <strong>bộ bài facsimile</strong> in lại nguyên trạng, phân phối qua MIT Press. <span class="badge b-ok">✓</span></p>
+    <p>Chi tiết ly kỳ cho dân bài: lá <strong>Strength</strong> đã <strong>thất lạc từ 1969</strong> — lần cuối được chụp ảnh tại bảo tàng (ghi nhận của giám tuyển Arthur Ivey, 11/1969). Bộ bài hiện hành vĩnh viễn thiếu một lá. <span class="badge b-ok">✓</span></p>
+  </div>
+  <div class="card">
+    <h2>Các bộ bài khác</h2>
+    <p><strong>Surrealist Racing Forecast Cards</strong> (~1936, còn gọi "Obeah cards") — bộ bài Spare làm để bói/dự đoán… đua ngựa, rất đúng chất ông: pháp thuật đi thẳng vào đời sống bình dân. Nay có bản facsimile được giới sưu tầm săn lùng. <span class="badge b-ok">✓</span></p>
+    <p><strong>"Arena of Anon"</strong> — bộ bài gắn với Alphabet of Desire, chỉ được biết qua Kenneth Grant. <span class="badge b-warn">⚠</span></p>
+  </div>
+  <div class="card">
+    <h2>Gợi ý khai thác cho BaoMinh</h2>
+    <p class="dim">Mảng Tarot/Lenormand của bạn có thể khai thác: (1) câu chuyện "bộ tarot ngủ quên 70 năm trong bảo tàng ảo thuật" — chất liệu bài viết/video hiếm ai ở VN kể; (2) cấu trúc lai 22 Arcana + bài Tây của Spare như một case study lịch sử cartomancy; (3) lá Strength thất lạc như một "huyền án" của giới bài. Lưu ý các URL nguồn ở tab Nguồn trước khi viết.</p>
+  </div>
+</section>
+
+<!-- ============ DI SẢN ============ -->
+<section id="disan">
+  <div class="card">
+    <h2>Từ căn hầm Brixton đến chaos magick</h2>
+    <p>Thập niên 1970s–80s, qua kênh Kenneth Grant, kỹ thuật sigil và khái niệm Kia của Spare được <strong>Peter J. Carroll</strong> (và Ray Sherwin) hệ thống hóa trong <em>Liber Null &amp; Psychonaut</em> — văn bản nền của <strong>chaos magick</strong>. Từ đó "vẽ sigil" trở thành thực hành huyền học phổ biến nhất mà internet thừa hưởng. <span class="badge b-ok">✓</span></p>
+    <p>Frater U∴D∴ (tác giả <em>Practical Sigil Magic</em>) gọi Spare — chứ không phải Crowley — là "người cha thực sự của pháp thuật thực dụng hiện đại", kèm chú thích trung thực: ảnh hưởng "trực tiếp" là nói quá; đúng hơn là hậu thế nhận ra ông đi trước thời đại. <span class="badge b-ok">✓</span></p>
+  </div>
+  <div class="card">
+    <h2>Trong văn hóa hôm nay</h2>
+    <p>Văn hóa manifestation (TikTok, sách self-help huyền bí) nhắc tên Spare ngày càng nhiều — thường là dưới dạng meme "người đàn ông ước gì được nấy", tức phiên bản Grant-hóa, ngược cơ chế gốc của chính ông.</p>
+    <p>Giới nghệ thuật tái khám phá ông từ những năm 2000s: tiểu sử chuẩn của <strong>Phil Baker</strong> (định bản 2023, lời tựa <strong>Alan Moore</strong> — tác giả Watchmen kiêm pháp sư tự nhận); triển lãm và chuyên khảo từ <strong>Fulgur Press</strong> và <strong>Strange Attractor Press</strong>; tranh giao dịch tại nhà đấu giá <strong>Bonhams</strong>; chân dung thời chiến trong <strong>Imperial War Museum</strong>. <span class="badge b-ok">✓</span></p>
+  </div>
+  <div class="card">
+    <h2>Vì sao câu chuyện của ông "viral"?</h2>
+    <p class="dim">Công thức hoàn hảo: thần đồng bị nghệ thuật chính thống ruồng bỏ + pháp sư phát minh cách "ước gì được nấy" + từ chối Hitler + chết nghèo giữa đàn mèo. Một nửa là sự thật có nguồn, một nửa là huyền thoại do người đời sau dựng — và hồ sơ này tồn tại để bạn luôn biết ranh giới nằm ở đâu.</p>
+  </div>
+</section>
+
+<!-- ============ NGUỒN ============ -->
+<section id="nguon">
+  <p class="dim">Nhấn giữ / chạm vào link để mở trong trình duyệt. Phân tầng theo độ tin cậy. Hồ sơ biên soạn 12/7/2026 (giờ Hà Nội); các nguồn đánh dấu (†) chưa đọc được toàn văn trong đợt quét này do sự cố kỹ thuật — sẽ bổ sung ở vòng đọc sâu tiếp theo nếu bạn yêu cầu.</p>
+
+  <div class="tier">Tầng 1 — Học thuật / tiểu sử chuẩn / văn bản gốc</div>
+  <div class="src"><a href="https://mitpress.mit.edu/9781913689650/austin-osman-spare/">Phil Baker — Austin Osman Spare: The Life and Legend of London's Lost Artist (Strange Attractor, định bản 21/11/2023, 344tr, ISBN 9781913689650)</a><div class="note">TIỂU SỬ CHUẨN — thước đo mọi tranh cãi thật/giả. Lời tựa Alan Moore.</div></div>
+  <div class="src"><a href="https://contemporary.burlington.org.uk/articles/articles/the-tarot-deck-of-austin-osman-spare">Burlington Contemporary — "The tarot deck of Austin Osman Spare" (Jonathan Allen)</a><div class="note">Tạp chí học thuật mỹ thuật: toàn bộ câu chuyện bộ tarot 79 lá, mốc 1944/2013/2016/2023, lá Strength thất lạc.</div></div>
+  <div class="src"><a href="https://hermetic.com/spare/pleasure">Austin Osman Spare — The Book of Pleasure (1913), toàn văn online</a><div class="note">VĂN BẢN GỐC (lưu ý: bản online lược một số chương — Sacred Letters, Automatic Drawing, self-attraction).</div></div>
+  <div class="src"><a href="https://hermetic.com/spare/aos-zkc">Kenneth Grant — "Austin Osman Spare and the Zos Kia Cultus" (The Magical Revival)</a><div class="note">Nguồn kép: vừa là tài liệu hệ thống Zos-Kia, vừa là "hiện vật số 1" của quá trình huyền thoại hóa (sai năm sinh, chuyện Mrs Paterson, phép màu gọi mưa).</div></div>
+  <div class="src"><a href="http://strangeattractor.co.uk/shoppe/lost-envoy/">Lost Envoy: The Tarot Deck of Austin Osman Spare (ed. Jonathan Allen, 2016/2023) †</a><div class="note">Trang nhà xuất bản; bản 2 phân phối qua MIT Press. Review học thuật: muse.jhu.edu/article/653129 †</div></div>
+  <div class="src"><a href="https://www.fulgur.co.uk/books/zos-speaks-encounters-austin-osman-spare/">Zos Speaks! — Kenneth &amp; Steffi Grant (Fulgur) †</a><div class="note">Thư từ, nhật ký, bản thảo Spare–Grant 1949–56: tư liệu gốc của thập niên cuối.</div></div>
+
+  <div class="tier">Tầng 2 — Bách khoa / chuyên trang có trích nguồn</div>
+  <div class="src"><a href="https://en.wikipedia.org/wiki/Austin_Osman_Spare">Wikipedia — Austin Osman Spare (rev. 22/5/2026)</a><div class="note">Dựa chủ yếu trên Baker 2011. Đáng chú ý: KHÔNG đưa chuyện Hitler, Mrs Paterson, và mèo — chuẩn thận trọng để đối chiếu.</div></div>
+  <div class="src"><a href="https://en.wikipedia.org/wiki/The_Book_of_Pleasure">Wikipedia — The Book of Pleasure</a><div class="note">Lịch sử xuất bản 1913 (68tr, Co-operative Printing Society), các chương thất lạc thời WWII.</div></div>
+  <div class="src"><a href="https://www.fulgur.co.uk/artists-and-writers/austin-osman-spare/">Fulgur Press — tiểu luận tiểu sử (Robert Ansell, 2007) †</a><div class="note">Nhà xuất bản chuyên khảo Spare hàng đầu: chi tiết tranh vẽ năm 14 tuổi, hôn nhân 1911, war artist, Blitz 1941, triển lãm 1947.</div></div>
+  <div class="src"><a href="https://hermetic.com/chaos/austin-osman-spare-and-his-theory-of-sigils">Frater U∴D∴ — "Austin Osman Spare and His Theory of Sigils"</a><div class="note">Giải thích kỹ thuật chuẩn mực nhất; đối chiếu thẳng với luật hấp dẫn; nuance về ảnh hưởng lên chaos magick.</div></div>
+  <div class="src"><a href="https://archive.org/stream/LeftHandPath666/Practical-Sigil-Magic-Frater-UD_djvu.txt">Frater U∴D∴ — Practical Sigil Magic (bản scan archive.org)</a><div class="note">Chuyên khảo kỹ thuật; trích dẫn nên dẫn về bản sách in.</div></div>
+  <div class="src"><a href="https://elephantandcastle.org.uk/a-brief-history/visions-austin-osman-spare/">Elephant &amp; Castle local history — "The visions of Austin Osman Spare"</a><div class="note">Địa lý Nam London chi tiết nhất: Kennington 1894, studio 56a Walworth Rd, pub Temple Bar/White Bear, cái chết 1956.</div></div>
+  <div class="src"><a href="https://en.wikipedia.org/wiki/Chaos_magic">Wikipedia — Chaos magic</a><div class="note">Đường truyền Spare → Grant → Carroll/Sherwin.</div></div>
+
+  <div class="tier">Tầng 3 — Đại chúng / blog chuyên đề (nguồn của các giai thoại — dùng có kiểm soát)</div>
+  <div class="src"><a href="https://flashbak.com/austin-osman-spare-occult-art-439290/">Flashbak — "The Occult Art of Austin Osman Spare"</a><div class="note">Nguồn tường thuật: đàn mèo hoang, đồ ăn quyên tặng, vụ Hitler (qua Hannen Swaffer), "Hitler's revenge".</div></div>
+  <div class="src"><a href="https://www.vice.com/en/article/austin-osman-spare-forgotten-occult-artist-hitler-london/">VICE — "The Forgotten Occult Artist Who Refused to Paint for Hitler" †</a><div class="note">Bài báo về giai thoại Hitler, có tham chiếu Baker.</div></div>
+  <div class="src"><a href="http://www.austinspare.co.uk/zos1.html">austinspare.co.uk — "Austin Osman Spare with Cats" (ảnh tư liệu)</a><div class="note">Ảnh ông giữa đàn mèo — bằng chứng hình ảnh cho chi tiết mèo.</div></div>
+  <div class="src"><a href="https://www.paralibrum.com/reviews/austin-osman-spare">Paralibrum — review tiểu sử Baker †</a><div class="note">Ghi nhận: Baker không tìm thấy bằng chứng về "witch cult"/Mrs Paterson; quan hệ Crowley "ngưỡng mộ nhưng bất hạnh".</div></div>
+  <div class="src"><a href="https://literaryreview.co.uk/paint-and-spirits">Literary Review — "Paint and Spirits" (Kevin Jackson) †</a><div class="note">Thẩm định tiểu sử Baker: "scrupulously researched, judicious and refreshingly sane".</div></div>
+  <div class="src"><a href="https://www.bonhams.com/auctions/15777/lot/63/">Bonhams — lot "Self as Hitler" †</a><div class="note">Bằng chứng vật thể liên quan câu chuyện Hitler; thị trường tranh Spare.</div></div>
+  <div class="src"><a href="https://www.jdholmes.com/pages/books/18120/austin-osman-spare/surrealist-racing-forecast-cards-a-facsimile-or-the-obeah-cards-as-drawn-by-austin-spare">J.D. Holmes — Surrealist Racing Forecast Cards (facsimile) †</a><div class="note">Bộ bài dự đoán đua ngựa ~1936.</div></div>
+
+  <div class="card" style="margin-top:18px">
+    <h2>Khoảng trống &amp; bước tiếp theo</h2>
+    <p class="dim">① Chưa tìm thấy bài tiếng Việt đáng kể nào về Spare — khoảng trống nội dung thực sự nếu bạn muốn là người Việt đầu tiên viết sâu. ② Các nguồn đánh dấu † chờ đọc toàn văn vòng 2. ③ Muốn sâu hơn nữa: sách Baker (bản in), Lost Envoy, Zos Speaks! là ba cuốn phải có.</p>
+  </div>
+</section>
+
+<!-- ============ ĐỌC SÂU VÒNG 2 ============ -->
+<section id="docsau">
+  <p class="dim" style="margin-bottom:14px">Vòng đọc sâu thứ hai (12/7/2026): mở toàn văn 8 nguồn bị bỏ dở ở vòng 1 do sự cố limit. Kết quả: <strong>4 nguồn đọc trọn</strong>, 4 nguồn bị chặn kỹ thuật (đã bù bằng đường khác). Mỗi phân tích dưới đây gồm: nội dung cốt lõi → dữ kiện MỚI cho hồ sơ → đánh giá độ tin cậy.</p>
+
+  <div class="card">
+    <h2>① Paralibrum — review chuyên sâu tiểu sử Baker ✅ (nguồn đắt nhất vòng này)</h2>
+    <p><strong>Nội dung:</strong> bài mổ xẻ dài về cuốn tiểu sử chuẩn, tập trung đúng vào trục "thật vs huyền thoại".</p>
+    <p><strong>Dữ kiện mới cho hồ sơ:</strong></p>
+    <p>• Về <em>Mrs Paterson</em>: phát hiện sắc bén nhất — <span class="dim">"it seems to be only in the Grant era of Spare's life that she takes on the name of Paterson"</span> (cái tên "Paterson" chỉ xuất hiện ở thời kỳ Grant!). Baker không tìm thấy "tangible evidence" nào cho câu chuyện phù thủy. <span class="badge b-ok">✓ củng cố phán định GIAI THOẠI</span></p>
+    <p>• Về vai trò Kenneth Grant, một câu định nghĩa trọn vẹn: Grant là <span class="dim">"acolyte, image coach, muse, interpreter, exegete… proof-reader, part-time ghost-writer and, posthumously, his promotion agent"</span> — và kết luận nặng ký: <span class="dim">"the 'late Spare' is as much a product of Kenneth Grant as his own"</span> (Spare thời kỳ cuối là sản phẩm của Grant chẳng kém gì của chính ông).</p>
+    <p>• Vụ Hitler có thêm chi tiết nguồn: bên đưa đề nghị là <strong>Đại sứ quán Đức</strong> ("German Embassy allegedly requested a portrait"); phán quyết của Baker rất chừng mực: <span class="dim">"there may indeed have been something to the story, though it isn't entirely clear what exactly"</span> — và chính Spare về sau "thổi phồng nó dữ dội". <span class="badge b-mid">◐ giữ mức CƠ SỞ MỘT PHẦN</span></p>
+    <p>• Chi tiết đời sống mới: 1904 được cả <strong>Augustus John và John Singer Sargent</strong> khen ngợi; Crowley từng <strong>mua minh họa cho The Equinox và đổi áo choàng nghi lễ lấy tranh</strong>; sau đổ vỡ, Spare nhớ về Crowley "chỉ với sự chán ghét cao độ"; thời nghèo ông <strong>lắp ráp radio</strong> kiếm thêm, tự mô tả sống "as a swine with swine" ở Borough; bom 1941 hủy <strong>200–300 bức tranh</strong>, gây mất trí nhớ tạm thời + liệt tay (hồi phục nhờ tập luyện); chết vì <strong>viêm phúc mạc do vỡ ruột thừa tại South Western Hospital, Stockwell</strong>.</p>
+    <p>• Câu nói của Spare về "gia đình" quanh mình: <span class="dim">"I have only to turn my head… to see the whole gang of familiars, elementals and alter-egos"</span> — chỉ cần quay đầu là thấy cả băng linh thể thân thuộc, tinh linh và các bản ngã khác.</p>
+    <p><strong>Đánh giá:</strong> review độc lập, chi tiết, bám sát Baker; phê bình duy nhất: sách nói hơi ít về kỹ thuật sigil. Tin cậy tầng 2 (blog chuyên đề chất lượng cao, dẫn Baker). <span class="badge b-ok">✓</span></p>
+  </div>
+
+  <div class="card">
+    <h2>② Fulgur Press — tiểu luận tiểu sử của Robert Ansell ✅</h2>
+    <p><strong>Nội dung:</strong> dòng đời đầy đủ từ nhà xuất bản chuyên khảo Spare hàng đầu.</p>
+    <p><strong>Dữ kiện mới:</strong></p>
+    <p>• Sinh tháng 12/1886 <strong>gần Holborn Viaduct</strong>; học trường nhà thờ St Agnes (Kennington); từ nhỏ đã đắm vào "Eastern mysticism, Theosophy and Spiritualism".</p>
+    <p>• Lời phê bình đương thời khi triển lãm ở Bruton Gallery: <span class="dim">"His inventive faculty is stupendous and terrifying"</span> — sức sáng tạo của anh ta vừa kỳ vĩ vừa đáng sợ.</p>
+    <p>• <em>The Book of Pleasure</em> lấy cảm hứng từ cuộc hôn nhân với Eily (1911); hôn nhân tan vì "satyr-like sexual reputation" (tai tiếng tình ái kiểu thần điền dã) của ông.</p>
+    <p>• Chi tiết u tối: năm 1932, kiệt quệ đến mức ông đùa về việc <span class="dim">"contemplating the gas oven"</span> (nghĩ đến lò ga) — rồi chủ nghĩa siêu thực đến Anh năm 1936 đã tiếp sức: ông chuyển sang pastel, có 3 triển lãm thành công 1936–38.</p>
+    <p>• <strong>QUAN TRỌNG — điều chỉnh bức tranh "cô độc với mèo":</strong> từ 1936–38 ông nối lại với <strong>Ada Millicent Pain</strong>, "người thương cũ"; sau trận bom 1941 ông chuyển đến Brixton <strong>cùng/gần bà</strong>. Cuối đời còn có Frank Letchford trợ giúp và vợ chồng Grant lui tới. Nghèo — thật; nhiều mèo — thật; nhưng "chỉ có mèo" là chưa đủ bức tranh. <span class="badge b-ok">✓ tinh chỉnh hồ sơ</span></p>
+    <p><strong>Đánh giá:</strong> tầng 2 vững (Ansell là học giả-NXB chuyên về Spare; bản quyền 2007). Không nhắc mèo/Hitler/Paterson — đúng phong cách thận trọng.</p>
+  </div>
+
+  <div class="card">
+    <h2>③ VICE — "The Forgotten Occult Artist Who Refused to Paint for Hitler" ✅</h2>
+    <p><strong>Nội dung:</strong> bài của Jade Angeles Fitton (4/6/2017) — đại diện cho cách báo chí đại chúng kể chuyện Spare.</p>
+    <p><strong>Dữ kiện thu được:</strong> khung thời gian khớp hồ sơ: tranh <em>Self Portrait As Hitler</em> 1936; câu trả lời <span class="dim">"If you are superman, let me be for ever animal"</span> dẫn theo Baker nhưng ở thể "claimed" (được cho là); bài KHÔNG nói rõ đề nghị đến bằng đường nào — tức mờ hơn bản của Paralibrum (Đại sứ quán Đức). Xác nhận lại: bom 1941 = "Hitler's revenge", chuyển Brixton, sống nhờ một phần quyên tặng, <strong>"kept numerous stray cats"</strong>, triển lãm pub, mất 1956. Diễn giải đại chúng về Alphabet of Desire: ngôn ngữ "để giao tiếp với linh thể"; trance = "voluntary insanity… the condition of genius".</p>
+    <p><strong>Đánh giá:</strong> tầng 3 — giá trị chính là cho thấy <em>cỗ máy lan truyền</em> giai thoại hoạt động thế nào (mọi chi tiết đều quy về Baker nhưng lược bỏ các chữ "có lẽ/không rõ" của Baker). Dùng để đối chiếu văn hóa, không dùng làm nguồn dữ kiện gốc. <span class="badge b-mid">◐</span></p>
+  </div>
+
+  <div class="card">
+    <h2>④ Literary Review — "Paint and Spirits" (Kevin Jackson) ✅</h2>
+    <p><strong>Nội dung:</strong> thẩm định của giới phê bình văn học chính thống về cuốn Baker.</p>
+    <p><strong>Dữ kiện thu được:</strong> đánh giá nguyên văn — <span class="dim">"a first-rate performance, scrupulously researched, judicious and refreshingly sane"</span> (một màn trình diễn hạng nhất, khảo cứu tỉ mỉ, chừng mực và tỉnh táo một cách dễ chịu) → đây là cái neo cho việc hồ sơ này lấy Baker làm thước đo. Jackson gọi Spare là "a poor, solitary man" có "những cuộc phiêu lưu của tâm trí giàu có hơn của thân xác"; ghi nhận tên tuổi ông từng "bị quên sạch" trước khi được hồi sinh bởi "connoisseurs, rock musicians and dabblers in the Mysteries" (giới sành sỏi, nhạc sĩ rock và những kẻ nhúng tay vào Huyền Thuật); triển lãm gần đây đông khách, từng lên BBC Culture Show.</p>
+    <p><strong>Đánh giá:</strong> tầng 1–2 (tạp chí phê bình uy tín). Củng cố toàn bộ khung phương pháp của hồ sơ. <span class="badge b-ok">✓</span></p>
+  </div>
+
+  <div class="card">
+    <h2>⑤–⑧ Bốn nguồn vẫn không mở được — lý do và cách đã bù</h2>
+    <p><strong>⑤ Project MUSE (review học thuật Lost Envoy):</strong> chặn bởi tường xác thực của cơ sở dữ liệu học thuật (cần tài khoản thư viện/đại học). Bù: bài Burlington Contemporary (đã đọc trọn ở vòng 1, cùng đề tài, cùng tác giả Jonathan Allen) đã phủ đủ dữ kiện bộ tarot. <span class="badge b-ok">✓ không mất thông tin cốt lõi</span></p>
+    <p><strong>⑥ Strange Attractor Press (trang NXB Lost Envoy):</strong> máy chủ của NXB bị lỗi cấu hình chuyển hướng lặp vô hạn (https↔http) — lỗi phía họ, không phải phía ta. Bù: chi tiết xuất bản đã có từ Burlington + MIT Press (bản 2, phân phối 2023).</p>
+    <p><strong>⑦ J.D. Holmes &amp; Weiser Antiquarian (bộ bài đua ngựa):</strong> cả hai trang bán sách hiếm đều giới hạn tần suất truy cập (lỗi 429). Bù bằng tìm kiếm chéo: bản facsimile <em>Surrealist Racing Forecast Cards</em> có thật và lưu hành từ 1997; có ấn bản đóng kèm sách <em>Two Tracts on Cartomancy</em> của Gavin Semple (bộ bài facsimile "chỉ phát hành kèm sách này"); Fulgur Press từng công bố buổi xem bộ gốc tại The Magic Circle. <span class="badge b-mid">◐ đủ dùng, chờ xác nhận thêm</span></p>
+    <p><strong>⑧ Bonhams (lot "Self as Hitler"):</strong> nhà đấu giá chặn truy cập tự động (lỗi 403). Bù bằng tìm kiếm: lot tồn tại thật (phiên 15777, lot 63) — và một chi tiết thú vị bổ sung cho hồ sơ: ngay tiêu đề lot của Bonhams cũng ghi <strong>"(British, 1888-1956)" — sai năm sinh</strong>, thêm một bằng chứng sống cho hiện tượng "năm sinh sai lan truyền từ thời Grant". Giá gõ búa chưa lấy được. <span class="badge b-mid">◐</span></p>
+  </div>
+
+  <div class="card">
+    <h2>Vòng 2 thay đổi gì trong hồ sơ?</h2>
+    <p>① Giai thoại Mrs Paterson: <strong>củng cố mức GIAI THOẠI</strong> (tên chỉ xuất hiện thời Grant). ② Vụ Hitler: thêm chi tiết "Đại sứ quán Đức" + phán quyết chừng mực của Baker → <strong>giữ mức CƠ SỞ MỘT PHẦN</strong>. ③ Bức tranh cuối đời: <strong>tinh chỉnh</strong> — nghèo và nhiều mèo là thật, nhưng có Ada Millicent Pain, Frank Letchford và vợ chồng Grant bên cạnh; "chỉ sống với mèo" là cách kể đã được lãng mạn hóa. ④ Thêm chi tiết đắt: 200–300 tranh mất trong đêm bom; giai đoạn trầm cảm 1932; nơi mất: Stockwell. ⑤ Grant được định vị lại bằng câu quote "ghost-writer &amp; promotion agent".</p>
+  </div>
+</section>
+
+<footer>
+  Hồ sơ riêng tư của BaoMinh · biên soạn bởi Claude · vòng 1 + vòng đọc sâu 2: 12/7/2026 (giờ Hà Nội)<br>
+  59 dữ kiện / 12 nguồn (vòng 1) + 4 nguồn đọc trọn &amp; 4 nguồn bù đường vòng (vòng 2) · kiểm chứng chéo thủ công · offline hoàn toàn
+</footer>
+</div>
+
+<script>
+(function(){
+  var tabs = document.querySelectorAll('.tab');
+  var sections = document.querySelectorAll('section');
+  function activate(id){
+    tabs.forEach(function(t){t.classList.toggle('active', t.dataset.t===id)});
+    sections.forEach(function(s){s.classList.toggle('active', s.id===id)});
+    window.scrollTo({top:0});
+  }
+  tabs.forEach(function(t){t.addEventListener('click',function(){activate(t.dataset.t)})});
+
+  // ------- search -------
+  var q = document.getElementById('q');
+  var info = document.getElementById('searchInfo');
+  var allCards = Array.prototype.slice.call(document.querySelectorAll('.card, .src, .ev'));
+  // remember original html to restore highlights
+  allCards.forEach(function(c){ c.dataset.orig = c.innerHTML; });
+
+  function normalize(s){
+    return s.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/đ/g,'d');
+  }
+  function escapeReg(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+
+  function highlight(el, term){
+    // walk text nodes and wrap matches (diacritic-insensitive)
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+    var nodes = [];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function(node){
+      var raw = node.nodeValue;
+      var norm = normalize(raw);
+      var t = normalize(term);
+      var idx = norm.indexOf(t);
+      if(idx === -1) return;
+      var frag = document.createDocumentFragment();
+      var pos = 0;
+      while(idx !== -1){
+        frag.appendChild(document.createTextNode(raw.slice(pos, idx)));
+        var m = document.createElement('mark');
+        m.textContent = raw.slice(idx, idx + term.length);
+        frag.appendChild(m);
+        pos = idx + term.length;
+        idx = norm.indexOf(t, pos);
+      }
+      frag.appendChild(document.createTextNode(raw.slice(pos)));
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+
+  var debounce;
+  q.addEventListener('input', function(){
+    clearTimeout(debounce);
+    debounce = setTimeout(run, 160);
+  });
+
+  function run(){
+    var term = q.value.trim();
+    // restore
+    allCards.forEach(function(c){
+      c.innerHTML = c.dataset.orig;
+      c.classList.remove('hidden-by-search');
+    });
+    if(term.length < 2){
+      info.textContent = '';
+      sections.forEach(function(s){ s.style.display=''; });
+      // re-apply active tab view
+      var act = document.querySelector('.tab.active').dataset.t;
+      sections.forEach(function(s){s.classList.toggle('active', s.id===act)});
+      return;
+    }
+    var t = normalize(term);
+    var hits = 0, sectionsWithHits = {};
+    allCards.forEach(function(c){
+      var text = normalize(c.textContent);
+      if(text.indexOf(t) !== -1){
+        hits++;
+        highlight(c, term);
+        var sec = c.closest('section');
+        if(sec) sectionsWithHits[sec.id] = true;
+      } else {
+        c.classList.add('hidden-by-search');
+      }
+    });
+    // show every section that has hits, hide others
+    sections.forEach(function(s){
+      var has = !!sectionsWithHits[s.id];
+      s.classList.toggle('active', has);
+      s.style.display = has ? 'block' : 'none';
+    });
+    info.textContent = hits
+      ? '☽ ' + hits + ' mục khớp "' + term + '" — đang hiển thị tất cả các tab có kết quả'
+      : 'Không tìm thấy "' + term + '" trong hồ sơ.';
+  }
+})();
+</script>
+</body>
+</html>
