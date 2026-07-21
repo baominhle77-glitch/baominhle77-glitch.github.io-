@@ -1,0 +1,59 @@
+name: Auto Handover (bàn giao tự động)
+
+# Sau mỗi lần push (trừ thay đổi trong docs/handover/ để tránh lặp vô hạn),
+# tự sinh docs/handover/STATUS.md từ lịch sử git và commit lại.
+# Nhờ đó bất kỳ nick nào kết nối GitHub đều nắm được tình hình mới nhất.
+on:
+  push:
+    paths-ignore:
+      - "docs/handover/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  handover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (đầy đủ lịch sử)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sinh STATUS.md
+        run: |
+          mkdir -p docs/handover
+          BRANCH="${GITHUB_REF_NAME}"
+          {
+            echo "# Bàn giao tự động — Trạng thái mới nhất"
+            echo
+            echo "> File này do máy tự tạo sau mỗi lần push. Đừng sửa tay."
+            echo
+            echo "- **Nhánh:** \`$BRANCH\`"
+            echo "- **Cập nhật:** $(date -u '+%Y-%m-%d %H:%M UTC')"
+            echo "- **Commit mới nhất:** \`$(git rev-parse --short HEAD)\`"
+            echo
+            echo "## 20 thay đổi gần nhất"
+            echo
+            git log -20 --pretty=format:'- \`%h\` %ad %s — %an' --date=short
+            echo
+            echo
+            echo "## Tệp thay đổi ở commit mới nhất"
+            echo
+            echo '```'
+            git show --stat --oneline -1 | tail -n +2
+            echo '```'
+          } > docs/handover/STATUS.md
+
+      - name: Commit nếu có thay đổi
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet docs/handover/STATUS.md 2>/dev/null; then
+            git add docs/handover/STATUS.md
+            git commit -m "chore(handover): cập nhật STATUS tự động [skip ci]"
+            git push
+          else
+            echo "Không có thay đổi bàn giao."
+          fi
