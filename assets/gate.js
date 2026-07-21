@@ -188,7 +188,9 @@
 
   function unlockLocalOrEncrypted(pass, remember) {
     var work;
-    if (MODE === "encrypted") {
+    // Nếu trang có nội dung mã hóa (kể cả ở chế độ 'approval' cho CHỦ) -> giải mã bằng mật khẩu.
+    var hasPayload = !!document.querySelector('script[type="application/gate-payload"]');
+    if (MODE === "encrypted" || hasPayload) {
       work = decryptPayload(pass).then(function (html) { injectHtml(html); });
     } else {
       work = verifyLocal(pass).then(function (ok) {
@@ -223,6 +225,7 @@
           '</div>' +
           '<label class="gate-remember"><input type="checkbox" name="gremember"> Ghi nhớ máy này</label>' +
           '<button class="gate-btn" type="submit">Mở khóa</button>' +
+          '<a href="#" class="gate-guest" style="display:none">Bạn là khách? Xin quyền truy cập →</a>' +
           '<div class="gate-msg" aria-live="polite"></div>' +
         '</form>' +
         '<div class="gate-foot">Khu vực riêng tư · Không lập chỉ mục · Truy cập được ghi nhận</div>' +
@@ -242,13 +245,28 @@
     var approvalFields = root.querySelector(".gate-approval-fields");
     var btn = root.querySelector(".gate-btn");
 
+    var guestLink = root.querySelector(".gate-guest");
+    var guestMode = false; // false = chủ (nhập mật khẩu), true = khách (xin duyệt)
+
     if (MODE === "approval") {
-      approvalFields.style.display = "";
-      // Chế độ approval: mật khẩu có thể không cần (backend cấp quyền). Ẩn nếu không cấu hình.
-      if (!CFG.approvalPassword) passField.style.display = "none";
-      btn.textContent = "Gửi yêu cầu truy cập";
-      SUBTITLE = CFG.subtitle || "Gửi yêu cầu — chủ sẽ duyệt qua Telegram hoặc máy của họ.";
-      root.querySelector(".gate-sub").textContent = SUBTITLE;
+      // Mặc định: giao diện CHỦ — nhập mật khẩu vào ngay (không làm phiền Telegram).
+      passField.style.display = "";
+      approvalFields.style.display = "none";
+      btn.textContent = "Mở khóa";
+      guestLink.style.display = "";
+      root.querySelector(".gate-sub").textContent =
+        CFG.subtitle || "Chủ: nhập mật khẩu. Khách: bấm 'Xin quyền truy cập' bên dưới.";
+      guestLink.addEventListener("click", function (e) {
+        e.preventDefault();
+        guestMode = true;
+        passField.style.display = "none";
+        approvalFields.style.display = "";
+        guestLink.style.display = "none";
+        btn.textContent = "Gửi yêu cầu duyệt";
+        msg.className = "gate-msg"; msg.textContent = "";
+        root.querySelector(".gate-sub").textContent = "Nhập tên rồi gửi — chủ sẽ duyệt qua Telegram.";
+        var gn = form.gname; if (gn) gn.focus();
+      });
     }
 
     form.addEventListener("submit", function (e) {
@@ -257,7 +275,8 @@
       var pass = form.gpass ? form.gpass.value : "";
       var remember = form.gremember && form.gremember.checked;
 
-      if (MODE === "approval") {
+      // KHÁCH xin duyệt (chỉ khi ở approval + đã bấm "xin quyền")
+      if (MODE === "approval" && guestMode) {
         var name = (form.gname.value || "").trim();
         if (!name) { msg.textContent = "Vui lòng nhập tên."; msg.className = "gate-msg err"; return; }
         btn.disabled = true; msg.textContent = "Đang gửi yêu cầu…";
@@ -295,8 +314,14 @@
       btn.disabled = true; msg.textContent = "Đang kiểm tra…";
       unlockLocalOrEncrypted(pass, remember).catch(function (err) {
         btn.disabled = false; msg.className = "gate-msg err";
-        msg.textContent = (err && err.message === "BAD_PASS")
-          ? "Sai mật khẩu." : "Không mở được: " + (err.message || "lỗi");
+        var hasPayload = !!document.querySelector('script[type="application/gate-payload"]');
+        if ((err && err.message === "BAD_PASS") || hasPayload) {
+          msg.textContent = (MODE === "approval")
+            ? "Sai mật khẩu. Nếu bạn là khách, bấm 'Xin quyền truy cập'."
+            : "Sai mật khẩu.";
+        } else {
+          msg.textContent = "Không mở được: " + (err.message || "lỗi");
+        }
       });
     });
   }
