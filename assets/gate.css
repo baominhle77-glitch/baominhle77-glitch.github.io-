@@ -65,6 +65,12 @@ html.gate-locked body { pointer-events: none; }
 .gate-btn:hover { opacity: 0.92; }
 .gate-btn:disabled { opacity: 0.55; cursor: default; }
 
+.gate-guest {
+  display: block; margin-top: 2px; font-size: 0.82rem; color: #8b6fd0;
+  text-decoration: none; text-align: center;
+}
+.gate-guest:hover { color: #a98fe0; text-decoration: underline; }
+
 .gate-msg { min-height: 1.2em; font-size: 0.85rem; margin-top: 4px; }
 .gate-msg.err { color: #e0785a; }
 .gate-msg.ok { color: #5fbf8a; }
