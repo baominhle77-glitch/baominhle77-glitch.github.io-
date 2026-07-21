@@ -1,3 +1,4 @@
 # Bản gốc (plaintext) của trang đã mã hóa — KHÔNG commit lên repo public
 *.src.html
 node_modules/
+.wrangler/

@@ -168,7 +168,28 @@
     document.documentElement.classList.remove("gate-locked");
     var root = document.getElementById("gate-root");
     if (root) root.parentNode.removeChild(root);
+    injectLogout(); // nút "khóa lại" nếu máy này đang được ghi nhớ
     // Watermark chủ sở hữu vẫn giữ lại sau khi mở khóa (không xóa).
+  }
+
+  // Nút nhỏ để "quên máy này" (xóa khóa đã lưu) — chỉ hiện khi máy đang được ghi nhớ.
+  function injectLogout() {
+    var has = false;
+    try { has = !!localStorage.getItem("gate_key_" + APP); } catch (e) {}
+    if (!has || document.getElementById("gate-logout")) return;
+    var b = document.createElement("button");
+    b.id = "gate-logout"; b.type = "button";
+    b.title = "Quên máy này (bắt nhập lại mật khẩu)";
+    b.textContent = "🔒";
+    b.addEventListener("click", function () {
+      try {
+        localStorage.removeItem("gate_key_" + APP);
+        localStorage.removeItem(REMEMBER_KEY);
+        sessionStorage.removeItem(SESSION_KEY);
+      } catch (e) {}
+      location.reload();
+    });
+    document.body.appendChild(b);
   }
 
   // Watermark chủ sở hữu: hiện ở ĐẦU trang, CUỐI trang và CHỮ MỜ nền.
@@ -200,7 +221,12 @@
     return work.then(function () {
       try {
         sessionStorage.setItem(SESSION_KEY, "1");
-        if (remember) localStorage.setItem(REMEMBER_KEY, "1");
+        if (remember) {
+          localStorage.setItem(REMEMBER_KEY, "1");
+          // GHI NHỚ MÁY NÀY: lưu khóa để lần sau TỰ MỞ (kể cả sau khi tắt máy).
+          // Chỉ lưu khi trang mã hóa (khóa = mật khẩu để giải mã lại).
+          if (MODE === "encrypted" || hasPayload) localStorage.setItem("gate_key_" + APP, pass);
+        }
       } catch (e) {}
       reveal();
     });
@@ -223,7 +249,7 @@
           '<div class="gate-pass-field">' +
             '<input class="gate-input" name="gpass" type="password" placeholder="Mật khẩu" autocomplete="off" autofocus>' +
           '</div>' +
-          '<label class="gate-remember"><input type="checkbox" name="gremember"> Ghi nhớ máy này</label>' +
+          '<label class="gate-remember"><input type="checkbox" name="gremember" checked> Ghi nhớ máy này (tự mở lần sau)</label>' +
           '<button class="gate-btn" type="submit">Mở khóa</button>' +
           '<a href="#" class="gate-guest" style="display:none">Bạn là khách? Xin quyền truy cập →</a>' +
           '<div class="gate-msg" aria-live="polite"></div>' +
@@ -337,10 +363,29 @@
 
   function start() {
     injectOwner(); // watermark chủ sở hữu (hiện cả khi khóa lẫn sau mở khóa)
-    // Nếu trang có nội dung MÃ HÓA (payload) thì LUÔN phải nhập lại để giải mã
-    // (khóa không được lưu — kể cả ở chế độ 'approval'). Chỉ trang local mới hiện luôn.
     var hasPayload = !!document.querySelector('script[type="application/gate-payload"]');
-    if (alreadyUnlocked() && MODE !== "encrypted" && !hasPayload) { reveal(); return; }
+
+    if (hasPayload) {
+      // GHI NHỚ MÁY NÀY: nếu máy này đã lưu khóa -> tự giải mã, khỏi nhập lại
+      // (bền vững kể cả sau khi tắt máy vì dùng localStorage).
+      var savedKey = null;
+      try { savedKey = localStorage.getItem("gate_key_" + APP); } catch (e) {}
+      if (savedKey) {
+        decryptPayload(savedKey)
+          .then(function (html) { injectHtml(html); reveal(); })
+          .catch(function () {
+            // khóa lưu không còn đúng (vd đổi mật khẩu) -> xóa và hiện lại cổng
+            try { localStorage.removeItem("gate_key_" + APP); } catch (e) {}
+            buildUI();
+          });
+        return;
+      }
+      buildUI();
+      return;
+    }
+
+    // Trang local (không mã hóa): dùng cờ đã-mở-khóa như cũ.
+    if (alreadyUnlocked() && MODE !== "encrypted") { reveal(); return; }
     buildUI();
   }
 
