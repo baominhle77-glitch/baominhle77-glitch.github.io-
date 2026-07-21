@@ -1,5 +1,5 @@
 /*!
- * gate.js — Cổng truy cập dùng chung cho các webapp của BaoMinh
+ * gate.js — Cổng truy cập dùng chung cho các webapp của Hiên Nhi Hiên 89
  * ----------------------------------------------------------------------------
  * MỤC TIÊU: chặn người lạ đọc nội dung khi chưa "đăng nhập".
  *
@@ -168,6 +168,22 @@
     document.documentElement.classList.remove("gate-locked");
     var root = document.getElementById("gate-root");
     if (root) root.parentNode.removeChild(root);
+    // Watermark chủ sở hữu vẫn giữ lại sau khi mở khóa (không xóa).
+  }
+
+  // Watermark chủ sở hữu: hiện ở ĐẦU trang, CUỐI trang và CHỮ MỜ nền.
+  // Bền vững qua cả lúc khóa lẫn sau khi mở khóa. Không chặn thao tác (pointer-events:none).
+  function injectOwner() {
+    if (!CFG.owner || document.getElementById("gate-owner-wrap")) return;
+    var name = String(CFG.owner);
+    var w = document.createElement("div");
+    w.id = "gate-owner-wrap";
+    w.setAttribute("aria-hidden", "true");
+    var top = document.createElement("div"); top.className = "gate-owner-top"; top.textContent = "✦ " + name + " ✦";
+    var bg = document.createElement("div"); bg.className = "gate-owner-bg"; bg.textContent = name;
+    var bot = document.createElement("div"); bot.className = "gate-owner-bottom"; bot.textContent = "✦ " + name + " · khu vực riêng tư ✦";
+    w.appendChild(top); w.appendChild(bg); w.appendChild(bot);
+    document.body.appendChild(w);
   }
 
   function unlockLocalOrEncrypted(pass, remember) {
@@ -215,6 +231,10 @@
 
     root.querySelector(".gate-title").textContent = TITLE;
     root.querySelector(".gate-sub").textContent = SUBTITLE;
+    if (CFG.owner) {
+      root.querySelector(".gate-foot").textContent =
+        "Chủ sở hữu: " + CFG.owner + " · Khu vực riêng tư · Không lập chỉ mục";
+    }
 
     var form = root.querySelector(".gate-form");
     var msg = root.querySelector(".gate-msg");
@@ -291,6 +311,7 @@
   }
 
   function start() {
+    injectOwner(); // watermark chủ sở hữu (hiện cả khi khóa lẫn sau mở khóa)
     // Nếu đã mở khóa trong phiên: hiện luôn.
     if (alreadyUnlocked() && MODE !== "encrypted") { reveal(); return; }
     // Chế độ mã hóa: dù "remember" cũng phải nhập lại để lấy khóa giải mã (nội dung chưa có trong DOM).

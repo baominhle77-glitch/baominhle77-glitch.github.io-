@@ -78,3 +78,25 @@ html.gate-locked body { pointer-events: none; }
 @media (prefers-color-scheme: light) {
   /* Cổng luôn dùng nền tối cho nhất quán, không đổi theo hệ thống. */
 }
+
+/* ---------- Watermark chủ sở hữu (đầu / cuối / chữ mờ nền) ---------- */
+/* Nằm dưới lớp khóa (z-index max) nhưng trên nội dung; không chặn thao tác. */
+#gate-owner-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 2147483000; overflow: hidden; }
+
+.gate-owner-top, .gate-owner-bottom {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  font-family: Georgia, "Times New Roman", serif; font-size: 11px; letter-spacing: 0.14em;
+  white-space: nowrap; background: rgba(15, 12, 20, 0.58); color: #ecd9a4;
+  padding: 3px 13px; border: 1px solid rgba(212, 169, 78, 0.38); backdrop-filter: blur(2px);
+}
+.gate-owner-top { top: 0; border-top: none; border-radius: 0 0 11px 11px; }
+.gate-owner-bottom { bottom: 0; border-bottom: none; border-radius: 11px 11px 0 0; }
+
+.gate-owner-bg {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-24deg);
+  font-family: Georgia, serif; font-weight: 700; letter-spacing: 0.05em;
+  font-size: clamp(32px, 11vw, 118px); white-space: nowrap; user-select: none;
+  color: rgba(139, 111, 208, 0.08);
+}
+@media print { #gate-owner-wrap { display: none; } }
