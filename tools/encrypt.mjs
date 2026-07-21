@@ -66,6 +66,10 @@ const encryptedRegion =
   '\n<div id="gate-content"></div>\n' +
   '<script type="application/gate-payload">' + JSON.stringify(payload) + '</script>\n';
 
+// Tự chuyển mode của window.GATE trong <head> sang 'encrypted' ở file xuất ra
+// (file master giữ nguyên mode:'local' để còn xem thử được).
+before = before.replace(/mode:\s*'[^']*'/, "mode: 'encrypted'");
+
 const out = before + encryptedRegion + after;
 fs.writeFileSync(output, out, 'utf8');
 

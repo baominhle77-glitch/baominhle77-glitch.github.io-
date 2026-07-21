@@ -11,7 +11,9 @@
 - ✅ **Lớp A**: `robots.txt`, meta `noindex/nofollow/noarchive`, `referrer:no-referrer`.
 - ✅ Khóa mật khẩu: `assets/gate.js` + `assets/gate.css`, wire vào `index.html`
   (`window.GATE.app = 'medora'`).
-- 🟡 **Lớp B** (mã hóa): công cụ có sẵn trong `tools/encrypt.mjs`. Xem hướng dẫn repo chính.
+- ✅ **Lớp B** (mã hóa): nội dung MEDORA đã **mã hóa AES-256-GCM** (`mode:'encrypted'`),
+  đã test trình duyệt thật. Sửa nội dung: `node tools/decrypt.mjs index.html "mk" > index.src.html`
+  → sửa → `node tools/encrypt.mjs index.src.html index.html "mk"`. File `*.src.html` KHÔNG commit.
 - 🟡 **Lớp C** (duyệt + Telegram): backend nằm ở repo chính (`baominhle77-glitch.github.io/backend/`).
   Một Worker phục vụ cả 3 app qua trường `app`. Để bật: đặt `window.GATE.mode='approval'`
   và `backend='https://baominh-gate.<ban>.workers.dev'` trong `index.html`.

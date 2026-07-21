@@ -115,6 +115,9 @@
       for (var i = 0; i < old.attributes.length; i++) {
         s.setAttribute(old.attributes[i].name, old.attributes[i].value);
       }
+      // Giữ đúng THỨ TỰ chạy: script ngoài (src) mặc định async -> ép async=false
+      // để data*.js chạy trước app.js như bản gốc.
+      if (old.src) s.async = false;
       s.textContent = old.textContent;
       old.parentNode.replaceChild(s, old);
     });
