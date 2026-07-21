@@ -337,9 +337,10 @@
 
   function start() {
     injectOwner(); // watermark chủ sở hữu (hiện cả khi khóa lẫn sau mở khóa)
-    // Nếu đã mở khóa trong phiên: hiện luôn.
-    if (alreadyUnlocked() && MODE !== "encrypted") { reveal(); return; }
-    // Chế độ mã hóa: dù "remember" cũng phải nhập lại để lấy khóa giải mã (nội dung chưa có trong DOM).
+    // Nếu trang có nội dung MÃ HÓA (payload) thì LUÔN phải nhập lại để giải mã
+    // (khóa không được lưu — kể cả ở chế độ 'approval'). Chỉ trang local mới hiện luôn.
+    var hasPayload = !!document.querySelector('script[type="application/gate-payload"]');
+    if (alreadyUnlocked() && MODE !== "encrypted" && !hasPayload) { reveal(); return; }
     buildUI();
   }
 
